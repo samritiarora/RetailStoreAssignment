@@ -1,0 +1,32 @@
+
+#Ignore thumbnails created by Windows
+Thumbs.db
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+.idea/vcs.xml
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+src/main/resources/application.properties
+src/main/resources/bootstrap.properties
+sample*.*
