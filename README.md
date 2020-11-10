@@ -4,6 +4,12 @@
 Run the main java file RetailStoreApplication to run a sample use case
 Other use cases are mentioned in the test cases
 
+## Build the code
+mvn clean install
+
+## Run tests
+mvn test
+
 ### Initialize sonarqube server ###
 docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
 ## Run the following command to analyze the code
