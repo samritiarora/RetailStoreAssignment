@@ -1,7 +1,6 @@
 package enterprise.org.assignment.controller;
 
 import enterprise.org.assignment.model.ShoppingCart;
-import enterprise.org.assignment.model.User;
 import enterprise.org.assignment.service.ICalculateBillService;
 import enterprise.org.assignment.service.IUserService;
 import io.swagger.annotations.ApiOperation;

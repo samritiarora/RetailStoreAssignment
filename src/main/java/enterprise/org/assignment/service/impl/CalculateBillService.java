@@ -1,19 +1,17 @@
 package enterprise.org.assignment.service.impl;
 
 import enterprise.org.assignment.commons.Constants;
+import enterprise.org.assignment.config.DiscountConfigurationProperties;
 import enterprise.org.assignment.model.Item;
 import enterprise.org.assignment.model.ShoppingCart;
-import enterprise.org.assignment.model.User;
 import enterprise.org.assignment.service.ICalculateBillService;
 import enterprise.org.assignment.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -21,19 +19,16 @@ import java.util.stream.Collectors;
  * Service class to calculate bill of the retail store user
  */
 @Service
+@Slf4j
 public class CalculateBillService implements ICalculateBillService {
 
-    private String flatDiscount;
-    private String flatDiscountBase;
     private IUserService userService;
+    private DiscountConfigurationProperties discountConfigurationProperties;
 
     @Autowired
-    public CalculateBillService(@Value("org.cash.flat.discount") String flatDiscount,
-                                @Value("org.cash.flat.discount.base") String flatDiscountBase
-            , IUserService userService) {
-        this.flatDiscount = flatDiscount;
-        this.flatDiscountBase = flatDiscountBase;
+    public CalculateBillService(IUserService userService, DiscountConfigurationProperties discountConfigurationProperties) {
         this.userService = userService;
+        this.discountConfigurationProperties = discountConfigurationProperties;
     }
 
     /**
@@ -42,8 +37,8 @@ public class CalculateBillService implements ICalculateBillService {
      * - User specific: applicable only on non grocery items
      * - Flat discount: for every $100, there is a $5 discount
      *
-     * @param user          the user for which we are calculating the bill
-     * @param selectedItems the list of items that the user has purchased
+     * @param shoppingCart the user for which we are calculating the bill and  the list of items that the user
+     *                     has purchased
      * @return Returns the net payable amount
      */
     public BigDecimal calculateBill(final ShoppingCart shoppingCart) {
@@ -66,9 +61,11 @@ public class CalculateBillService implements ICalculateBillService {
         subTotal = subTotal.subtract(userDiscountValue);
 
         //  every $100 on the bill, there would be a $ 5 discount
-        BigDecimal modResult = subTotal.divide(BigDecimal.valueOf(Integer.valueOf(flatDiscountBase)), 0, RoundingMode.FLOOR);
-        BigDecimal flatDiscountValue = modResult.multiply(BigDecimal.valueOf(Integer.valueOf(flatDiscount)));
-
+        BigDecimal modResult = subTotal.divide(BigDecimal.valueOf(discountConfigurationProperties.getBase()), 0,
+                RoundingMode.FLOOR);
+        BigDecimal flatDiscountValue =
+                modResult.multiply(BigDecimal.valueOf(discountConfigurationProperties.getFlat()));
+        log.debug("CalculateBillService:: discount {}", subTotal);
         return subTotal.subtract(flatDiscountValue);
     }
 

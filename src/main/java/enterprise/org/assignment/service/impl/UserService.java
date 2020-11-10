@@ -1,28 +1,27 @@
 package enterprise.org.assignment.service.impl;
 
+import enterprise.org.assignment.config.DiscountConfigurationProperties;
 import enterprise.org.assignment.model.User;
 import enterprise.org.assignment.service.IUserService;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 @Service
-@Getter
-@Setter
-@ConfigurationProperties(prefix = "${org.user.percentage}")
+@Slf4j
 public class UserService implements IUserService {
-//    @Value("${org.user.percentage.discount}")
-    private Map<User.UserType, Double> discount;
+
+    @Autowired
+    private DiscountConfigurationProperties configurationProperties;
 
     @Override
     public Double getUserDiscountFromUserType(User user) {
-        Double userApplicableDiscount = discount.get(user.getUserType());
+        String userApplicableDiscount = configurationProperties.getUserPercentage().get(user.getUserType().toString());
+        double userDiscount = userApplicableDiscount == null ? 0d : Double.valueOf(userApplicableDiscount);
         if (user.getUserType().equals(User.UserType.CUSTOMER) && user.getRelationshipPeriod() < 2) {
-            userApplicableDiscount = 0d;
+            userDiscount = 0d;
         }
-        return userApplicableDiscount;
+        log.debug("UserService:: discount {}", userDiscount);
+        return userDiscount;
     }
 }

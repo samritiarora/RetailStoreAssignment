@@ -1,32 +1,44 @@
 package enterprise.org.assignment.service.impl;
 
+import enterprise.org.assignment.config.DiscountConfigurationProperties;
 import enterprise.org.assignment.model.User;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
+    @InjectMocks
     private UserService userService;
+    @Mock
+    private DiscountConfigurationProperties discountConfigurationProperties;
     @Before
     public void setUp() {
-        ReflectionTestUtils.setField(userService, "discount", new HashMap());
+        Map<String, String> discount = new HashMap();
+        discount.put("EMPLOYEE", "30");
+        discount.put("CUSTOMER", "5");
+        Mockito.when(discountConfigurationProperties.getUserPercentage()).thenReturn(discount);
     }
 
     @Test
-    public void testCalculateBillForGroceryItems() {
-        Mockito.when(userService.getUserDiscountFromUserType(any())).thenReturn(30d);
+    public void testDiscountValueForEmployee() {
         Double amountPayable =
                 userService.getUserDiscountFromUserType(User.builder().userType(User.UserType.EMPLOYEE).relationshipPeriod(1).build());
-        Assert.assertEquals(BigDecimal.valueOf(190.0), amountPayable);
+        Assert.assertEquals(Double.valueOf(30d), amountPayable);
+    }
+
+    @Test
+    public void testDiscountValueForCustomer() {
+        Double amountPayable =
+                userService.getUserDiscountFromUserType(User.builder().userType(User.UserType.CUSTOMER).relationshipPeriod(1).build());
+        Assert.assertEquals(Double.valueOf(0d), amountPayable);
     }
 }

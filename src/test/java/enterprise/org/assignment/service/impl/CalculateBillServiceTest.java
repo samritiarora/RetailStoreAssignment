@@ -1,6 +1,7 @@
 package enterprise.org.assignment.service.impl;
 
 
+import enterprise.org.assignment.config.DiscountConfigurationProperties;
 import enterprise.org.assignment.model.Item;
 import enterprise.org.assignment.model.ShoppingCart;
 import enterprise.org.assignment.model.User;
@@ -27,18 +28,22 @@ public class CalculateBillServiceTest {
     @Mock
     private IUserService userService;
 
+    @Mock
+    private DiscountConfigurationProperties discountConfigurationProperties;
+
     @InjectMocks
     private CalculateBillService calculateBillService;
 
     @Before
     public void setUp() {
-        ReflectionTestUtils.setField(calculateBillService, "flatDiscount", "5");
-        ReflectionTestUtils.setField(calculateBillService, "flatDiscountBase", "100");
+        Mockito.when(discountConfigurationProperties.getBase()).thenReturn(100d);
+        Mockito.when(discountConfigurationProperties.getFlat()).thenReturn(5d);
     }
 
     @Test
     public void testCalculateBillForGroceryItems() {
         Mockito.when(userService.getUserDiscountFromUserType(any())).thenReturn(30d);
+
         BigDecimal amountPayable =
                 calculateBillService.calculateBill(
                         ShoppingCart.builder()
