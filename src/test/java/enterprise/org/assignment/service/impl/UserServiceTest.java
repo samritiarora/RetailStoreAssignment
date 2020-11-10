@@ -1,6 +1,7 @@
 package enterprise.org.assignment.service.impl;
 
 import enterprise.org.assignment.config.DiscountConfigurationProperties;
+import enterprise.org.assignment.exception.ServiceException;
 import enterprise.org.assignment.model.User;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,5 +41,10 @@ public class UserServiceTest {
         Double amountPayable =
                 userService.getUserDiscountFromUserType(User.builder().userType(User.UserType.CUSTOMER).relationshipPeriod(1).build());
         Assert.assertEquals(Double.valueOf(0d), amountPayable);
+    }
+
+    @Test(expected = ServiceException.class)
+    public void testDiscountValueForInvalidUser() {
+        userService.getUserDiscountFromUserType(User.builder().userType(null).relationshipPeriod(1).build());
     }
 }
